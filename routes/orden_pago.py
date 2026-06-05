@@ -373,7 +373,7 @@ def guardar_orden():
                 importe,
                 cuenta,
                 estado,
-                observacion
+                observacion 
             )
         )
 
