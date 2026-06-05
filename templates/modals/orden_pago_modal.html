@@ -1,0 +1,368 @@
+<html lang="es">
+<!-- MODAL ORDEN DE PAGO -->
+
+<div class="modal fade" id="ordenPagoModal" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content border-0 orden-modal">
+
+            <!-- HEADER -->
+
+            <div class="modal-header bg-primary text-white">
+
+                <div>
+
+                    <h3 class="mb-0">
+                        <i class="bi bi-receipt-cutoff"></i>
+                        Gestión de Órdenes de Pago
+                    </h3>
+
+                    <small>
+                        Administración de pagos y beneficiarios
+                    </small>
+
+                </div>
+
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <!-- BODY -->
+
+            <div class="modal-body">
+
+                <div class="container-fluid">
+
+                    <!-- FORMULARIO -->
+
+                    <div class="card shadow-sm">
+
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                Datos de la Orden
+                            </h5>
+                        </div>
+
+                        <div class="card-body py-2">
+
+                            <form id="formOrdenPago" method="post" action="/GuardarOrden" target="_blank">
+
+                                <input type="hidden" id="idOrden" name="idOrden">
+
+                                <!-- FILA 1 -->
+
+                                <div class="row g-1">
+
+                                    <div class="col-md-2">
+
+                                        <label class="form-label">
+                                            Fecha
+                                        </label>
+
+                                        <input type="date" id="fecha" name="fecha" class="form-control"
+                                            value="{{ fecha_hoy }}">
+
+                                    </div>
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label">
+                                            Beneficiario
+                                        </label>
+
+                                        <input type="text" id="beneficiario" name="beneficiario"
+                                            class="form-control text-uppercase"
+                                            oninput="this.value=this.value.toUpperCase()" required>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="form-label">
+                                            Importe
+                                        </label>
+
+                                        <input type="number" step="0.01" id="importe" name="importe"
+                                            class="form-control" required>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="form-label">
+                                            Modo
+                                        </label>
+
+                                        <select id="modo" name="modo" class="form-select">
+
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia</option>
+                                            <option value="Cheque">Cheque</option>
+                                            <option value="QR">QR</option>
+                                            <option value="Otro">Otro</option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <!-- N° CHEQUE -->
+
+                                    <div class="col-md-2 d-none" id="divCheque">
+
+                                        <label class="form-label">
+                                            N° Cheque
+                                        </label>
+
+                                        <input type="number" id="nCheque" name="nCheque" value="0" class="form-control">
+
+                                    </div>
+
+                                    <!-- N° TRANSFERENCIA -->
+
+                                    <div class="col-md-2 d-none" id="divTransferencia">
+
+                                        <label class="form-label">
+                                            N° Transferencia
+                                        </label>
+
+                                        <input type="number" id="nTransferencia" name="nTransferencia" value="0" class="form-control">
+
+                                    </div>
+
+                                </div>
+
+                                <!-- FILA 2 -->
+
+                                <div class="row g-1 mt-1">
+
+                                    <div class="col-md-5">
+
+                                        <label class="form-label">
+                                            Concepto
+                                        </label>
+
+                                        <input type="text" id="concepto" name="concepto" class="form-control"
+                                            list="listaConcepto" autocomplete="off" placeholder="Seleccione un concepto">
+
+                                        <datalist id="listaConcepto">
+
+                                            {% for c in gastos %}
+                                            <option value="{{ c.descripcion }}"></option>
+                                            {% endfor %}
+
+                                        </datalist>
+
+                                    </div>
+
+                                    <div class="col-md-7">
+
+                                        <label class="form-label">
+                                            La cantidad de Pesos
+                                        </label>
+
+                                        <input type="text" id="cantidad" name="cantidad" class="form-control" readonly>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- FILA 3 -->
+
+                                <div class="row g-1 mt-1">
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label">
+                                            Cuenta
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="cuenta"
+                                            name="cuenta"
+                                            class="form-control"
+                                            list="listaCuentas"
+                                            autocomplete="off"
+                                            value="{{ cuenta_default }}">
+
+                                        <datalist id="listaCuentas">
+
+                                            {% for m in cuenta %}
+                                            
+                                            <option value="{{ m.cuenta }}"></option>
+                                            {% endfor %}
+
+                                        </datalist>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="form-label">
+                                            Estado
+                                        </label>
+
+                                        <select id="estado" name="estado" class="form-select">
+
+                                            <option value="ACTIVO">ACTIVO</option>
+                                            <option value="ANULADA">ANULADA</option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Observaciones
+                                        </label>
+
+                                        <input type="text" id="observacion" name="observacion" class="form-control">
+
+                                    </div>
+
+                                </div>
+
+                                <!-- FILA 4 -->
+
+                                <div class="row g-1 mt-2">
+
+                                    <div class="col-md-12 d-flex justify-content-end">
+
+                                        <button type="submit" class="btn btn-success me-1" >
+
+                                            Guardar
+
+                                        </button>
+
+                                        <button type="button" class="btn btn-warning me-1" onclick="actualizarOrden()">
+
+                                            Modificar
+
+                                        </button>
+
+                                        <button type="button" class="btn btn-danger" onclick="eliminarOrden()">
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                    <!-- TABLA -->
+
+                    <div class="card shadow-sm mt-2">
+
+                        <div class="card-header py-1">
+
+                            <div class="row align-items-center">
+
+                                <div class="col-md-6">
+
+                                    <strong>
+                                        Órdenes Registradas
+                                    </strong>
+
+                                </div>
+
+                                <div class="col-md-3 ms-auto">
+
+                                    <select id="filtroModo" class="form-select">
+
+                                        <option value="">
+                                            Todos
+                                        </option>
+
+                                        <option value="Cheque">
+                                            Cheque
+                                        </option>
+
+                                        <option value="Transferencia">
+                                            Transferencia
+                                        </option>
+
+                                        <option value="Efectivo">
+                                            Efectivo
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card-body p-1">
+
+                            <div class="tabla-container">
+
+                                <table id="tablaOrdenes" class="table table-striped table-hover">
+
+                                    <thead class="table-dark">
+
+                                        <tr>
+
+                                            <th>ID</th>
+                                            <th>Fecha</th>
+                                            <th>Beneficiario</th>
+                                            <th>Concepto</th>
+                                            <th>Importe</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+
+                                        {% for orden in ordenes %}
+                                        <tr>
+
+                                            <td>{{ orden.idOrden }}</td>
+                                            <td>{{ orden.fecha }}</td>
+                                            <td>{{ orden.beneficiario }}</td>
+                                            <td>{{ orden.concepto }}</td>
+                                            <td>${{ orden.importe }}</td>
+                                            
+
+                                        </tr>
+                                        {% endfor %}
+
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FIN BODY -->
+
+        </div>
+
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/numero-a-letras@1.0.9/dist/numero-a-letras.min.js"></script>
+
+<script src="/static/js/orden_pago.js"></script>
+
+</html>

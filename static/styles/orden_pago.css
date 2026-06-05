@@ -1,0 +1,200 @@
+/* ==========================================
+   MODAL ORDEN DE PAGO
+========================================== */
+
+.orden-modal{
+    height:88vh;
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.orden-modal .modal-header{
+    padding:8px 14px;
+}
+
+.orden-modal .modal-header h3{
+    font-size:1rem;
+    margin:0;
+    font-weight:600;
+}
+
+.orden-modal .modal-header small{
+    font-size:.70rem;
+}
+
+.orden-modal .modal-body{
+    padding:8px;
+    overflow:hidden;
+}
+
+/* ==========================================
+   CARDS
+========================================== */
+
+.orden-modal .card{
+    margin-bottom:6px !important;
+    border-radius:8px;
+}
+
+.orden-modal .card-header{
+    padding:5px 10px;
+    font-size:.80rem;
+    font-weight:600;
+}
+
+.orden-modal .card-header h5{
+    margin:0;
+    font-size:.85rem;
+}
+
+/* ==========================================
+   LABELS
+========================================== */
+
+.orden-modal .form-label{
+    font-size:.68rem;
+    font-weight:600;
+    margin-bottom:1px;
+}
+
+/* ==========================================
+   INPUTS
+========================================== */
+
+.orden-modal .form-control,
+.orden-modal .form-select{
+    height:28px;
+    min-height:28px;
+    padding:2px 6px;
+    font-size:.75rem;
+}
+
+.orden-modal textarea.form-control{
+    height:auto;
+    resize:none;
+}
+
+/* ==========================================
+   TEXTAREAS
+========================================== */
+
+.concepto-area{
+    height:55px !important;
+}
+
+.obs-area{
+    height:40px !important;
+}
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.orden-modal .btn{
+    height:30px;
+    padding:3px 10px;
+    font-size:.72rem;
+    font-weight:500;
+}
+
+.orden-modal .d-flex.gap-2{
+    gap:.25rem !important;
+}
+
+/* ==========================================
+   TABLA
+========================================== */
+
+/* ==========================================
+   TABLA ULTRA COMPACTA
+========================================== */
+
+#tablaOrdenes{
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.68rem;
+}
+
+#tablaOrdenes th{
+    padding: 3px 5px;
+    height: 26px;
+    line-height: 1;
+}
+
+#tablaOrdenes td{
+    padding: 2px 5px;
+    height: 24px;
+    line-height: 1.1;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Anchos de columnas */
+
+#tablaOrdenes th:nth-child(1),
+#tablaOrdenes td:nth-child(1){
+    width: 60px;
+    text-align:center;
+}
+
+#tablaOrdenes th:nth-child(2),
+#tablaOrdenes td:nth-child(2){
+    width: 90px;
+}
+
+#tablaOrdenes th:nth-child(5),
+#tablaOrdenes td:nth-child(5){
+    width: 110px;
+    text-align:right;
+}
+
+/* Hover */
+
+#tablaOrdenes tbody tr:hover{
+    background:#edf4ff;
+}
+.tabla-container{
+    height: 45vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* ==========================================
+   FORMULARIO COMPACTO
+========================================== */
+
+.orden-modal .row{
+    --bs-gutter-x: .5rem;
+}
+
+.orden-modal .mt-3{
+    margin-top:.5rem !important;
+}
+
+.orden-modal .mt-2{
+    margin-top:.35rem !important;
+}
+
+.orden-modal .mb-4{
+    margin-bottom:.5rem !important;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 992px){
+
+    .orden-modal{
+        height:95vh;
+    }
+
+    .tabla-container{
+        max-height:30vh;
+    }
+
+}
