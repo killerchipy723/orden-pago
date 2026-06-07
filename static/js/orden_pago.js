@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    cargarOrdenes()
 
         const importe = document.getElementById("importe");
         const cantidad = document.getElementById("cantidad");
@@ -169,4 +170,239 @@ document.addEventListener("DOMContentLoaded", function(){
     actualizarCampos();
 
 });
+
+
+document.getElementById("formOrdenPago").addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+
+    try {
+
+        const response = await fetch("/GuardarOrden", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if(data.success){
+
+            // Abrir PDF en nueva pestaña
+            window.open(
+                "/orden_pago/pdf/" + data.idorden,
+                "_blank"
+            );
+
+            // Limpiar formulario
+            form.reset();
+            cargarOrdenes();
+
+            // Limpiar campos ocultos si los tenés
+            document.getElementById("nCheque").value = "";
+            document.getElementById("nTransferencia").value = "";
+
+            // Volver a cargar fecha actual si corresponde
+            const fecha = document.getElementById("fecha");
+            if(fecha){
+                fecha.value = new Date().toISOString().split("T")[0];
+            }
+
+        } else {
+
+            alert(data.message);
+
+        }
+
+    } catch(error){
+
+        console.error(error);
+        alert("Error al guardar la orden");
+
+    }
+
+});
+
+
+
+// -------------- Funcion para cargar la tabla de orden de pago ---------------------------------------
+async function cargarOrdenes() {
+
+    try {
+
+        const modo = document.getElementById("filtroModo").value;
+
+        let url = "/api/orden_pago";
+
+        if (modo) {
+            url += "?modo=" + encodeURIComponent(modo);
+        }
+
+        const response = await fetch(url);
+        const ordenes = await response.json();
+
+        const tbody = document.querySelector("#tablaOrdenes tbody");
+
+        tbody.innerHTML = "";
+
+        ordenes.forEach(orden => {
+
+            const fila = document.createElement("tr");
+
+            fila.style.cursor = "pointer";
+
+            fila.innerHTML = `
+                <td>${orden.idorden}</td>
+                <td>${orden.fecha}</td>
+                <td>${orden.beneficiario}</td>
+                <td>${orden.concepto}</td>
+                <td>$${parseFloat(orden.importe).toLocaleString('es-AR')}</td>
+            `;
+
+            fila.addEventListener("click", () => {
+
+                document
+                    .querySelectorAll("#tablaOrdenes tbody tr")
+                    .forEach(tr => tr.classList.remove("table-primary"));
+
+                fila.classList.add("table-primary");
+
+                cargarOrdenEnFormulario(
+                    orden.idorden
+                );
+
+            });
+
+            tbody.appendChild(fila);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando órdenes:",
+            error
+        );
+
+    }
+
+}
+
+// ---------------------- RESETEO DE FORMULARIO CON TABLA-------------------------------------
+async function cargarOrdenEnFormulario(idOrden) {
+
+    try {
+
+        const response = await fetch(
+            `/api/orden_pago/${idOrden}`
+        );
+
+        const orden = await response.json();
+
+        document.getElementById("idOrden").value =
+            orden.idorden;
+
+        document.getElementById("fecha").value =
+            orden.fecha;
+
+        document.getElementById("beneficiario").value =
+            orden.beneficiario;
+
+        document.getElementById("cantidad").value =
+            orden.cantidad;
+
+        document.getElementById("concepto").value =
+            orden.concepto;
+
+        document.getElementById("modo").value =
+            orden.modo;
+
+        document.getElementById("importe").value =
+            orden.importe;
+
+        document.getElementById("cuenta").value =
+            orden.cuenta;
+
+        document.getElementById("estado").value =
+            orden.estado;
+
+        document.getElementById("observacion").value =
+            orden.observacion || "";
+
+        if (
+            orden.modo === "Cheque" ||
+            orden.modo === "Transferencia"
+        ) {
+
+            document.getElementById("nCheque").value =
+                orden.ncheque || "";
+
+        }
+
+        const btnGuardar =
+            document.getElementById("btnGuardar");
+
+        const btnModificar =
+            document.getElementById("btnModificar");
+
+        const btnImprimir =
+            document.getElementById("btnImprimir");
+
+        if (btnGuardar)
+            btnGuardar.disabled = true;
+
+        if (btnModificar)
+            btnModificar.disabled = false;
+
+        if (btnImprimir)
+            btnImprimir.disabled = false;
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando orden:",
+            error
+        );
+
+    }
+
+}
+
+// ---------------------- Cerrar el modal y reseterar -------------------------------------------
+const modalOrdenPago =
+    document.getElementById("ordenPagoModal");
+
+modalOrdenPago.addEventListener(
+    "hidden.bs.modal",
+    function () {
+
+        document
+            .getElementById("formOrdenPago")
+            .reset();
+
+        document
+            .getElementById("idOrden")
+            .value = "";
+
+        document
+            .querySelectorAll("#tablaOrdenes tbody tr")
+            .forEach(tr => tr.classList.remove("table-primary"));
+
+        document
+            .getElementById("btnGuardar")
+            .disabled = false;
+
+        document
+            .getElementById("btnModificar")
+            .disabled = true;
+
+        document
+            .getElementById("btnImprimir")
+            .disabled = true;
+
+    }
+);
+
 

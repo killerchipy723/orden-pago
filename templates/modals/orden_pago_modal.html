@@ -127,7 +127,8 @@
                                             N° Transferencia
                                         </label>
 
-                                        <input type="number" id="nTransferencia" name="nTransferencia" value="0" class="form-control">
+                                        <input type="number" id="nTransferencia" name="nTransferencia" value="0"
+                                            class="form-control">
 
                                     </div>
 
@@ -144,7 +145,8 @@
                                         </label>
 
                                         <input type="text" id="concepto" name="concepto" class="form-control"
-                                            list="listaConcepto" autocomplete="off" placeholder="Seleccione un concepto">
+                                            list="listaConcepto" autocomplete="off"
+                                            placeholder="Seleccione un concepto">
 
                                         <datalist id="listaConcepto">
 
@@ -178,19 +180,13 @@
                                             Cuenta
                                         </label>
 
-                                        <input
-                                            type="text"
-                                            id="cuenta"
-                                            name="cuenta"
-                                            class="form-control"
-                                            list="listaCuentas"
-                                            autocomplete="off"
-                                            value="{{ cuenta_default }}">
+                                        <input type="text" id="cuenta" name="cuenta" class="form-control"
+                                            list="listaCuentas" autocomplete="off" value="{{ cuenta_default }}">
 
                                         <datalist id="listaCuentas">
 
                                             {% for m in cuenta %}
-                                            
+
                                             <option value="{{ m.cuenta }}"></option>
                                             {% endfor %}
 
@@ -224,6 +220,7 @@
                                     </div>
 
                                 </div>
+                                <input type="hidden" id="idOrden" name="idOrden">
 
                                 <!-- FILA 4 -->
 
@@ -231,21 +228,21 @@
 
                                     <div class="col-md-12 d-flex justify-content-end">
 
-                                        <button type="submit" class="btn btn-success me-1" >
+                                        <button type="submit" class="btn btn-success me-1">
 
                                             Guardar
 
-                                        </button>
+                                        </button>                                       
 
-                                        <button type="button" class="btn btn-warning me-1" onclick="actualizarOrden()">
+                                        <button type="button" id="btnModificar" class="btn btn-warning" disabled>
 
                                             Modificar
 
                                         </button>
 
-                                        <button type="button" class="btn btn-danger" onclick="eliminarOrden()">
+                                        <button type="button" id="btnImprimir" class="btn btn-primary" disabled>
 
-                                            Eliminar
+                                            Reimprimir
 
                                         </button>
 
@@ -334,7 +331,7 @@
                                             <td>{{ orden.beneficiario }}</td>
                                             <td>{{ orden.concepto }}</td>
                                             <td>${{ orden.importe }}</td>
-                                            
+
 
                                         </tr>
                                         {% endfor %}

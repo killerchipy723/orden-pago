@@ -319,6 +319,8 @@ def eliminar_orden(id_orden):
     finally:
         conn.close()
 
+# Generar orden de pago
+
 @orden_pago_bp.route("/GuardarOrden", methods=["POST"])
 def guardar_orden():
 
@@ -387,12 +389,10 @@ def guardar_orden():
             "success"
         )
 
-        return redirect(
-            url_for(
-                 "orden_pago_pdf.generar_orden_pdf",
-                idorden=id_orden
-            )
-        )
+        return jsonify({
+            "success": True,
+            "idorden": id_orden
+        })
 
     except Exception as e:
 
@@ -403,7 +403,10 @@ def guardar_orden():
             "danger"
         )
 
-        return redirect(url_for("home"))
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
 
     finally:
 
