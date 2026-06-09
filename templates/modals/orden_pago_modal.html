@@ -49,7 +49,7 @@
 
                             <form id="formOrdenPago" method="post" action="/GuardarOrden" target="_blank">
 
-                                <input type="hidden" id="idOrden" name="idOrden">
+
 
                                 <!-- FILA 1 -->
 
@@ -228,11 +228,11 @@
 
                                     <div class="col-md-12 d-flex justify-content-end">
 
-                                        <button type="submit" class="btn btn-success me-1">
+                                        <button type="submit" class="btn btn-success me-1" id="btnGuardar">
 
                                             Guardar
 
-                                        </button>                                       
+                                        </button>
 
                                         <button type="button" id="btnModificar" class="btn btn-warning" disabled>
 
@@ -264,15 +264,22 @@
 
                             <div class="row align-items-center">
 
-                                <div class="col-md-6">
+                                <div class="col-md-3">
 
                                     <strong>
-                                        Órdenes Registradas
+                                        Órdenes Emitidas
                                     </strong>
 
                                 </div>
 
-                                <div class="col-md-3 ms-auto">
+                                <div class="col-md-5">
+
+                                    <input type="text" id="buscarOrden" class="form-control"
+                                        placeholder="Buscar por ID, beneficiario, concepto, importe...">
+
+                                </div>
+
+                                <div class="col-md-2">
 
                                     <select id="filtroModo" class="form-select">
 
@@ -315,6 +322,8 @@
                                             <th>Beneficiario</th>
                                             <th>Concepto</th>
                                             <th>Importe</th>
+                                            <th>Modo</th>
+                                            <th>N° Trasnf/Cheque</th>
 
                                         </tr>
 
@@ -331,6 +340,8 @@
                                             <td>{{ orden.beneficiario }}</td>
                                             <td>{{ orden.concepto }}</td>
                                             <td>${{ orden.importe }}</td>
+                                            <td>{{ orden.modo }}</td>
+                                            <td>${{ orden.ncheque }}</td>
 
 
                                         </tr>

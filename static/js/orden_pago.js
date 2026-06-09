@@ -1,8 +1,42 @@
 document.addEventListener("DOMContentLoaded", function () {
     cargarOrdenes()
+    
+    
 
         const importe = document.getElementById("importe");
         const cantidad = document.getElementById("cantidad");
+
+        const modal =
+        document.getElementById("ordenPagoModal");
+
+    modal.addEventListener(
+        "shown.bs.modal",
+        function () {
+
+            setTimeout(() => {
+
+                document
+                    .getElementById("beneficiario")
+                    .focus();
+
+            }, 100);
+
+        }
+    );
+
+    const txtBuscar =
+    document.getElementById("buscarOrden");
+
+if (txtBuscar) {
+
+    txtBuscar.addEventListener(
+        "input",
+        filtrarTablaOrdenes
+    );
+
+}
+
+       
 
         if (!importe || !cantidad) {
             console.error("No se encontró #importe o #cantidad");
@@ -225,6 +259,18 @@ document.getElementById("formOrdenPago").addEventListener("submit", async functi
 
 });
 
+function formatearFecha(fechaMysql) {
+
+    const fecha = new Date(fechaMysql);
+
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const anio = fecha.getFullYear();
+
+    return `${dia}-${mes}-${anio}`;
+
+}
+
 
 
 // -------------- Funcion para cargar la tabla de orden de pago ---------------------------------------
@@ -233,6 +279,7 @@ async function cargarOrdenes() {
     try {
 
         const modo = document.getElementById("filtroModo").value;
+       
 
         let url = "/api/orden_pago";
 
@@ -255,10 +302,12 @@ async function cargarOrdenes() {
 
             fila.innerHTML = `
                 <td>${orden.idorden}</td>
-                <td>${orden.fecha}</td>
+                <td>${formatearFecha(orden.fecha)}</td>
                 <td>${orden.beneficiario}</td>
                 <td>${orden.concepto}</td>
                 <td>$${parseFloat(orden.importe).toLocaleString('es-AR')}</td>
+                <td>${orden.modo}</td>
+                <td>${orden.ncheque}</td>
             `;
 
             fila.addEventListener("click", () => {
@@ -290,7 +339,7 @@ async function cargarOrdenes() {
 
 }
 
-// ---------------------- RESETEO DE FORMULARIO CON TABLA-------------------------------------
+// ---------------------- CARGAR ORDEN EN FORMULARIO ----------------------
 async function cargarOrdenEnFormulario(idOrden) {
 
     try {
@@ -301,46 +350,109 @@ async function cargarOrdenEnFormulario(idOrden) {
 
         const orden = await response.json();
 
+        // ID
         document.getElementById("idOrden").value =
             orden.idorden;
 
-        document.getElementById("fecha").value =
-            orden.fecha;
+        // FECHA
+        if (orden.fecha) {
 
+    const fecha = new Date(orden.fecha);
+
+    const fechaFormateada =
+        fecha.getFullYear() + "-" +
+        String(fecha.getMonth() + 1).padStart(2, "0") + "-" +
+        String(fecha.getDate()).padStart(2, "0");
+
+    document.getElementById("fecha").value =
+        fechaFormateada;
+
+}
+
+        // DATOS GENERALES
         document.getElementById("beneficiario").value =
-            orden.beneficiario;
+            orden.beneficiario || "";
 
         document.getElementById("cantidad").value =
-            orden.cantidad;
+            orden.cantidad || "";
 
         document.getElementById("concepto").value =
-            orden.concepto;
-
-        document.getElementById("modo").value =
-            orden.modo;
+            orden.concepto || "";
 
         document.getElementById("importe").value =
-            orden.importe;
+            orden.importe || "";
 
         document.getElementById("cuenta").value =
-            orden.cuenta;
+            orden.cuenta || "0";
 
         document.getElementById("estado").value =
-            orden.estado;
+            orden.estado || "";
 
         document.getElementById("observacion").value =
             orden.observacion || "";
 
-        if (
-            orden.modo === "Cheque" ||
-            orden.modo === "Transferencia"
-        ) {
+        // MODO DE PAGO
+        const modo = (orden.modo || "").toUpperCase();
 
-            document.getElementById("nCheque").value =
+        const selectModo =
+            document.getElementById("modo");
+
+        if (modo === "CHEQUE") {
+
+            selectModo.value = "Cheque";
+
+        } else if (modo === "TRANSFERENCIA") {
+
+            selectModo.value = "Transferencia";
+
+        } else if (modo === "EFECTIVO") {
+
+            selectModo.value = "Efectivo";
+
+        } else {
+
+            selectModo.value = orden.modo;
+
+        }
+
+        // MOSTRAR / OCULTAR CAMPOS
+        const divCheque =
+            document.getElementById("divCheque");
+
+        const divTransferencia =
+            document.getElementById("divTransferencia");
+
+        const txtCheque =
+            document.getElementById("nCheque");
+
+        const txtTransferencia =
+            document.getElementById("nTransferencia");
+
+        divCheque.classList.add("d-none");
+        divTransferencia.classList.add("d-none");
+
+        txtCheque.value = "0";
+        txtTransferencia.value = "0";
+
+        if (modo === "CHEQUE") {
+
+            divCheque.classList.remove("d-none");
+
+            txtCheque.value =
                 orden.ncheque || "";
 
         }
 
+        if (modo === "TRANSFERENCIA") {
+
+            divTransferencia.classList.remove("d-none");
+
+            txtTransferencia.value =
+                orden.ncheque || "";
+
+        }
+
+        // BOTONES
         const btnGuardar =
             document.getElementById("btnGuardar");
 
@@ -370,6 +482,140 @@ async function cargarOrdenEnFormulario(idOrden) {
 
 }
 
+//----------------------- MODIFICAR ORDEN DE PAGO -----------------------
+async function modificarOrden() {
+
+    try {
+
+        const idOrden =
+            document.getElementById("idOrden").value;
+
+        if (!idOrden) {
+
+            alert(
+                "Seleccione una orden para modificar."
+            );
+
+            return;
+        }
+
+        const datos = {
+
+            fecha:
+                document.getElementById("fecha").value,
+
+            beneficiario:
+                document.getElementById("beneficiario").value,
+
+            cantidad:
+                document.getElementById("cantidad").value,
+
+            concepto:
+                document.getElementById("concepto").value,
+
+            modo:
+                document.getElementById("modo").value,
+
+            nCheque:
+                document.getElementById("nCheque").value,
+
+            nTransferencia:
+                document.getElementById("nTransferencia").value,
+
+            importe:
+                document.getElementById("importe").value,
+
+            cuenta:
+                document.getElementById("cuenta").value,
+
+            estado:
+                document.getElementById("estado").value,
+
+            observacion:
+                document.getElementById("observacion").value
+
+        };
+
+        const response = await fetch(
+            `/api/orden_pago/${idOrden}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datos)
+            }
+        );
+
+        const resultado =
+            await response.json();
+
+        if (resultado.success) {
+
+            // Abre el PDF actualizado
+            window.open(
+                `/orden_pago/pdf/${idOrden}`,
+                "_blank"
+            );
+
+            alert(
+                "Orden modificada correctamente."
+            );
+
+            // Recarga la tabla
+            await cargarOrdenes();
+
+            // Limpia formulario
+            document
+                .getElementById("formOrdenPago")
+                .reset();
+
+            // Limpia ID oculto
+            document
+                .getElementById("idOrden")
+                .value = "";
+
+            // Oculta cheque y transferencia
+            document
+                .getElementById("divCheque")
+                .classList.add("d-none");
+
+            document
+                .getElementById("divTransferencia")
+                .classList.add("d-none");
+
+            // Habilita Guardar
+            document
+                .getElementById("btnGuardar")
+                .disabled = false;
+
+            // Deshabilita Modificar
+            document
+                .getElementById("btnModificar")
+                .disabled = true;
+
+            // Deshabilita Reimprimir
+            document
+                .getElementById("btnImprimir")
+                .disabled = true;
+
+        } else {
+
+            alert(resultado.message);
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Error al modificar la orden."
+        );
+
+    }
+
+}
 // ---------------------- Cerrar el modal y reseterar -------------------------------------------
 const modalOrdenPago =
     document.getElementById("ordenPagoModal");
@@ -404,5 +650,49 @@ modalOrdenPago.addEventListener(
 
     }
 );
+
+//---------------------------- FILTRO PARA ORDENES EMITIDAS ------------------------------------
+function filtrarTablaOrdenes() {
+
+    const texto =
+        document
+            .getElementById("buscarOrden")
+            .value
+            .toLowerCase();
+
+    const filas =
+        document.querySelectorAll(
+            "#tablaOrdenes tbody tr"
+        );
+
+    filas.forEach(fila => {
+
+        const contenido =
+            fila.textContent.toLowerCase();
+
+        if (contenido.includes(texto)) {
+
+            fila.style.display = "";
+
+        } else {
+
+            fila.style.display = "none";
+
+        }
+
+    });
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    cargarOrdenes();
+
+    document
+        .getElementById("btnModificar")
+        .addEventListener("click", modificarOrden);
+        
+
+});
 
 

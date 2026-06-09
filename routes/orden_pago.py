@@ -103,112 +103,6 @@ def buscar_orden(id_orden):
         conn.close()
 
 
-# ==========================
-# ULTIMA ORDEN
-# ==========================
-
-@orden_pago_bp.route("/api/orden_pago/ultima", methods=["GET"])
-def ultima_orden():
-
-    conn = get_connection()
-
-    try:
-
-        with conn.cursor() as cursor:
-
-            sql = """
-                SELECT *
-                FROM ordenpago
-                ORDER BY idOrden DESC
-                LIMIT 1
-            """
-
-            cursor.execute(sql)
-
-            orden = cursor.fetchone()
-
-            return jsonify(orden)
-
-    except Exception as e:
-
-        return jsonify({
-            "success": False,
-            "message": str(e)
-        }), 500
-
-    finally:
-        conn.close()
-
-
-# ==========================
-# CREAR ORDEN
-# ==========================
-
-@orden_pago_bp.route("/api/orden_pago", methods=["POST"])
-def crear_orden():
-
-    data = request.get_json()
-
-    conn = get_connection()
-
-    try:
-
-        with conn.cursor() as cursor:
-
-            sql = """
-            INSERT INTO ordenpago
-            (
-                fecha,
-                beneficiario,
-                cantidad,
-                concepto,
-                modo,
-                nCheque,
-                importe,
-                cuenta,
-                estado,
-                observacion
-            )
-            VALUES
-            (
-                %s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-            )
-            """
-
-            cursor.execute(
-                sql,
-                (
-                    data["fecha"],
-                    data["beneficiario"],
-                    data["cantidad"],
-                    data["concepto"],
-                    data["modo"],
-                    data["nCheque"],
-                    data["importe"],
-                    data["cuenta"],
-                    data["estado"],
-                    data["observacion"]
-                )
-            )
-
-        conn.commit()
-
-        return jsonify({
-            "success": True,
-            "message": "Orden registrada correctamente"
-        })
-
-    except Exception as e:
-
-        conn.rollback()
-
-        return jsonify({
-            "success": False,
-            "message": str(e)
-        }), 500
-
-    finally:
-        conn.close()
 
 
 # ==========================
@@ -226,31 +120,37 @@ def modificar_orden(id_orden):
 
         with conn.cursor() as cursor:
 
+            numero_operacion = (
+                data.get("nCheque")
+                if data.get("nCheque")
+                else data.get("nTransferencia", 0)
+            )
+
             sql = """
-            UPDATE ordenpago
-            SET
-                fecha=%s,
-                beneficiario=%s,
-                cantidad=%s,
-                concepto=%s,
-                modo=%s,
-                nCheque=%s,
-                importe=%s,
-                cuenta=%s,
-                estado=%s,
-                observacion=%s
-            WHERE idOrden=%s
+                UPDATE ordenpago
+                SET
+                    fecha = %s,
+                    beneficiario = %s,
+                    cantidad = %s,
+                    concepto = %s,
+                    modo = %s,
+                    ncheque = %s,
+                    importe = %s,
+                    cuenta = %s,
+                    estado = %s,
+                    observacion = %s
+                WHERE idorden = %s
             """
 
             cursor.execute(
                 sql,
                 (
                     data["fecha"],
-                    data["beneficiario"],
+                    data["beneficiario"].upper(),
                     data["cantidad"],
                     data["concepto"],
                     data["modo"],
-                    data["nCheque"],
+                    numero_operacion,
                     data["importe"],
                     data["cuenta"],
                     data["estado"],
@@ -263,7 +163,8 @@ def modificar_orden(id_orden):
 
         return jsonify({
             "success": True,
-            "message": "Orden modificada correctamente"
+            "message": "Orden modificada correctamente",
+            "idOrden": id_orden
         })
 
     except Exception as e:
@@ -276,9 +177,8 @@ def modificar_orden(id_orden):
         }), 500
 
     finally:
+
         conn.close()
-
-
 # ==========================
 # ELIMINAR ORDEN
 # ==========================

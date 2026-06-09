@@ -33,11 +33,7 @@ def home():
         cursor3.execute("SELECT * FROM plancuenta WHERE estado = 'ACTIVO'")
         cursor.execute("""
             SELECT
-                idOrden,
-                fecha,
-                beneficiario,
-                concepto,
-                importe
+                *
             FROM ordenpago
             ORDER BY idOrden DESC
         """)
@@ -47,6 +43,7 @@ def home():
         cuenta = cursor3.fetchall()
 
         cuenta_default = ""
+        print(ordenes)
 
         for c in cuenta:
             if c["idorden"] == 2:
