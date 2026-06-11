@@ -43,7 +43,7 @@ def home():
         cuenta = cursor3.fetchall()
 
         cuenta_default = ""
-        print(ordenes)
+       
 
         for c in cuenta:
             if c["idorden"] == 2:
