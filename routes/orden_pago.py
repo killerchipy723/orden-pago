@@ -241,7 +241,14 @@ def guardar_orden():
         cuenta = request.form["cuenta"]
         estado = request.form["estado"]
         observacion = request.form["observacion"]
-        numero_operacion = nCheque if nCheque and nCheque != "0" else nTransferencia
+        if modo.upper() == "CHEQUE":
+            numero_operacion = int(nCheque) if nCheque else 0
+
+        elif modo.upper() == "TRANSFERENCIA":
+            numero_operacion = int(nTransferencia) if nTransferencia else 0
+
+        else:
+            numero_operacion = 0
 
         
 
