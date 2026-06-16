@@ -151,7 +151,7 @@
                                         <datalist id="listaConcepto">
 
                                             {% for c in gastos %}
-                                            <option value="{{ c.descripcion }}"></option>
+                                            <option value="{{c.cod}} - {{ c.descripcion }}"></option>
                                             {% endfor %}
 
                                         </datalist>

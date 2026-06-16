@@ -211,7 +211,7 @@ def generar_orden_pdf(idorden):
             pdf.drawString(
                 50,
                 y,
-              f"En concepto de: ({orden['cod']} - {orden['concepto']})"
+                f"En concepto de: {orden['concepto']}"
             )
 
             y -= 18
