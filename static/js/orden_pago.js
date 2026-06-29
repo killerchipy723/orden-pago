@@ -261,11 +261,13 @@ document.getElementById("formOrdenPago").addEventListener("submit", async functi
 
 function formatearFecha(fechaMysql) {
 
+    if (!fechaMysql) return "";
+
     const fecha = new Date(fechaMysql);
 
-    const dia = String(fecha.getDate()).padStart(2, "0");
-    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-    const anio = fecha.getFullYear();
+    const dia = String(fecha.getUTCDate()).padStart(2, "0");
+    const mes = String(fecha.getUTCMonth() + 1).padStart(2, "0");
+    const anio = fecha.getUTCFullYear();
 
     return `${dia}-${mes}-${anio}`;
 
@@ -355,17 +357,40 @@ async function cargarOrdenEnFormulario(idOrden) {
             orden.idorden;
 
         // FECHA
-        if (orden.fecha) {
+       // FECHA
+if (orden.fecha) {
 
-    const fecha = new Date(orden.fecha);
+    let fecha = orden.fecha;
 
-    const fechaFormateada =
-        fecha.getFullYear() + "-" +
-        String(fecha.getMonth() + 1).padStart(2, "0") + "-" +
-        String(fecha.getDate()).padStart(2, "0");
+    // Si viene como objeto Date serializado
+    if (fecha.includes("GMT")) {
 
-    document.getElementById("fecha").value =
-        fechaFormateada;
+        const d = new Date(fecha);
+
+        fecha =
+            d.getUTCFullYear() + "-" +
+            String(d.getUTCMonth() + 1).padStart(2, "0") + "-" +
+            String(d.getUTCDate()).padStart(2, "0");
+
+    }
+
+    // Si viene como 03/06/2026
+    else if (fecha.includes("/")) {
+
+        const p = fecha.split("/");
+
+        fecha = `${p[2]}-${p[1]}-${p[0]}`;
+
+    }
+
+    // Si viene como 2026-06-03T00:00:00
+    else if (fecha.includes("T")) {
+
+        fecha = fecha.split("T")[0];
+
+    }
+
+    document.getElementById("fecha").value = fecha;
 
 }
 
@@ -483,121 +508,121 @@ async function cargarOrdenEnFormulario(idOrden) {
 }
 
 //----------------------- MODIFICAR ORDEN DE PAGO -----------------------
+//----------------------- MODIFICAR ORDEN DE PAGO -----------------------
 async function modificarOrden() {
 
     try {
 
-        const idOrden =
-            document.getElementById("idOrden").value;
+        const idOrden = document.getElementById("idOrden").value;
 
         if (!idOrden) {
 
-            alert(
-                "Seleccione una orden para modificar."
-            );
-
+            alert("Seleccione una orden para modificar.");
             return;
+
+        }
+
+        const modo = document.getElementById("modo").value;
+
+        // Número único que se guarda en la BD
+        let numeroOperacion = 0;
+
+        switch (modo) {
+
+            case "Cheque":
+
+                numeroOperacion =
+                    document.getElementById("nCheque").value || 0;
+                break;
+
+            case "Transferencia":
+
+                numeroOperacion =
+                    document.getElementById("nTransferencia").value || 0;
+                break;
+
+            default:
+
+                numeroOperacion = 0;
+
         }
 
         const datos = {
 
-            fecha:
-                document.getElementById("fecha").value,
+            fecha: document.getElementById("fecha").value,
 
-            beneficiario:
-                document.getElementById("beneficiario").value,
+            beneficiario: document.getElementById("beneficiario").value,
 
-            cantidad:
-                document.getElementById("cantidad").value,
+            cantidad: document.getElementById("cantidad").value,
 
-            concepto:
-                document.getElementById("concepto").value,
+            concepto: document.getElementById("concepto").value,
 
-            modo:
-                document.getElementById("modo").value,
+            modo: modo,
 
-            nCheque:
-                document.getElementById("nCheque").value,
+            // SIEMPRE se envía este campo
+            nCheque: numeroOperacion,
 
-            nTransferencia:
-                document.getElementById("nTransferencia").value,
+            importe: document.getElementById("importe").value,
 
-            importe:
-                document.getElementById("importe").value,
+            cuenta: document.getElementById("cuenta").value,
 
-            cuenta:
-                document.getElementById("cuenta").value,
+            estado: document.getElementById("estado").value,
 
-            estado:
-                document.getElementById("estado").value,
-
-            observacion:
-                document.getElementById("observacion").value
+            observacion: document.getElementById("observacion").value
 
         };
 
         const response = await fetch(
+
             `/api/orden_pago/${idOrden}`,
+
             {
+
                 method: "PUT",
+
                 headers: {
+
                     "Content-Type": "application/json"
+
                 },
+
                 body: JSON.stringify(datos)
+
             }
+
         );
 
-        const resultado =
-            await response.json();
+        const resultado = await response.json();
 
         if (resultado.success) {
 
-            // Abre el PDF actualizado
+            // Abre nuevamente el PDF actualizado
             window.open(
                 `/orden_pago/pdf/${idOrden}`,
                 "_blank"
             );
 
-            alert(
-                "Orden modificada correctamente."
-            );
+            alert("Orden modificada correctamente.");
 
             // Recarga la tabla
             await cargarOrdenes();
 
             // Limpia formulario
-            document
-                .getElementById("formOrdenPago")
-                .reset();
+            document.getElementById("formOrdenPago").reset();
 
-            // Limpia ID oculto
-            document
-                .getElementById("idOrden")
-                .value = "";
+            document.getElementById("idOrden").value = "";
 
-            // Oculta cheque y transferencia
-            document
-                .getElementById("divCheque")
-                .classList.add("d-none");
+            document.getElementById("divCheque").classList.add("d-none");
+            document.getElementById("divTransferencia").classList.add("d-none");
 
-            document
-                .getElementById("divTransferencia")
-                .classList.add("d-none");
+            document.getElementById("nCheque").value = "0";
+            document.getElementById("nTransferencia").value = "0";
 
-            // Habilita Guardar
-            document
-                .getElementById("btnGuardar")
-                .disabled = false;
+            document.getElementById("btnGuardar").disabled = false;
+            document.getElementById("btnModificar").disabled = true;
+            document.getElementById("btnImprimir").disabled = true;
 
-            // Deshabilita Modificar
-            document
-                .getElementById("btnModificar")
-                .disabled = true;
-
-            // Deshabilita Reimprimir
-            document
-                .getElementById("btnImprimir")
-                .disabled = true;
+            document.getElementById("beneficiario").focus();
 
         } else {
 
@@ -609,9 +634,7 @@ async function modificarOrden() {
 
         console.error(error);
 
-        alert(
-            "Error al modificar la orden."
-        );
+        alert("Error al modificar la orden.");
 
     }
 
