@@ -5,6 +5,7 @@ from db import get_connection
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+from reportlab.lib.utils import simpleSplit
 
 from io import BytesIO
 import os
@@ -208,13 +209,25 @@ def generar_orden_pdf(idorden):
 
             pdf.setFont("Helvetica", 10)
 
-            pdf.drawString(
-                50,
-                y,
-                f"En concepto de: {orden['concepto']}"
+            texto_concepto = f"En concepto de: {orden['concepto']}"
+
+            lineas = simpleSplit(
+                texto_concepto,
+                "Helvetica",
+                10,
+                ancho - 100
             )
 
-            y -= 18
+            for linea in lineas:
+                pdf.drawString(
+                    50,
+                    y,
+                    linea
+                )
+                y -= 14
+
+            # Espacio antes del siguiente campo
+            y -= 4
 
             pdf.drawString(
                 50,
