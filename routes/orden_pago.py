@@ -319,3 +319,90 @@ def guardar_orden():
 
         cursor.close()
         conexion.close()
+        
+# ==========================
+# GUARDAR CONCEPTO
+# ==========================
+
+@orden_pago_bp.route("/api/gastos", methods=["POST"])
+def guardar_concepto():
+
+    conn = get_connection()
+
+    try:
+
+        data = request.get_json()
+
+        codigo = data.get("codigo", "").strip()
+        descripcion = data.get("descripcion", "").strip().upper()
+
+        # Validación
+        if not codigo or not descripcion:
+            return jsonify({
+                "success": False,
+                "message": "Debe completar todos los campos."
+            }), 400
+
+        with conn.cursor() as cursor:
+
+            # Verificar código existente
+            cursor.execute(
+                "SELECT 1 FROM gastos WHERE cod = %s",
+                (codigo,)
+            )
+
+            if cursor.fetchone():
+                return jsonify({
+                    "success": False,
+                    "message": "El código ya existe."
+                }), 400
+
+            # Verificar descripción existente
+            cursor.execute(
+                "SELECT 1 FROM gastos WHERE descripcion = %s",
+                (descripcion,)
+            )
+
+            if cursor.fetchone():
+                return jsonify({
+                    "success": False,
+                    "message": "Ese concepto ya existe."
+                }), 400
+
+            sql = """
+                INSERT INTO gastos
+                (
+                    cod,
+                    descripcion
+                )
+                VALUES
+                (%s,%s)
+            """
+
+            cursor.execute(
+                sql,
+                (
+                    codigo,
+                    descripcion
+                )
+            )
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Concepto agregado correctamente."
+        })
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+    finally:
+
+        conn.close()

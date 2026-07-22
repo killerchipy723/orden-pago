@@ -144,14 +144,25 @@
                                             Concepto
                                         </label>
 
-                                        <input type="text" id="concepto" name="concepto" class="form-control"
-                                            list="listaConcepto" autocomplete="off"
-                                            placeholder="Seleccione un concepto">
+                                        <div class="input-group">
+
+                                            <input type="text" id="concepto" name="concepto" class="form-control"
+                                                list="listaConcepto" autocomplete="off"
+                                                placeholder="Seleccione un concepto">
+
+                                            <button type="button" class="btn btn-outline-success" id="btnNuevoConcepto"
+                                                title="Nuevo concepto">
+
+                                                <i class="bi bi-plus-lg"></i>
+
+                                            </button>
+
+                                        </div>
 
                                         <datalist id="listaConcepto">
 
                                             {% for c in gastos %}
-                                            <option value="{{c.cod}} - {{ c.descripcion }}"></option>
+                                            <option value="{{ c.cod }} - {{ c.descripcion }}"></option>
                                             {% endfor %}
 
                                         </datalist>
@@ -369,6 +380,101 @@
     </div>
 
 </div>
+
+<!-- MODAL NUEVO CONCEPTO -->
+<div class="modal fade" id="modalConcepto" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-md">
+
+        <div class="modal-content shadow border-0 rounded-4">
+
+            <div class="modal-header bg-success text-white">
+
+                <div>
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-journal-plus"></i>
+                        Nuevo Concepto
+                    </h5>
+
+                    <small>
+                        Registrar concepto de gasto
+                    </small>
+
+                </div>
+
+                <button class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="formConcepto">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Código
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="codigoConcepto"
+                            maxlength="10"
+                            required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Descripción
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control text-uppercase"
+                            id="descripcionConcepto"
+                            oninput="this.value=this.value.toUpperCase()"
+                            maxlength="120"
+                            required>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    class="btn btn-success"
+                    id="btnGuardarConcepto">
+
+                    <i class="bi bi-check-circle"></i>
+                    Guardar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/numero-a-letras@1.0.9/dist/numero-a-letras.min.js"></script>
 
 <script src="/static/js/orden_pago.js"></script>

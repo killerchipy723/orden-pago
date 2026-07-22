@@ -36,7 +36,7 @@ if (txtBuscar) {
 
 }
 
-       
+        
 
         if (!importe || !cantidad) {
             console.error("No se encontró #importe o #cantidad");
@@ -59,6 +59,54 @@ if (txtBuscar) {
             cantidad.value = numeroALetras(valor);
 
         });
+
+        // ------------------- MODAL CONCEPTO (MOVIDO AQUÍ DENTRO) -------------------
+        const modalConcepto = new bootstrap.Modal(
+            document.getElementById("modalConcepto")
+        );
+
+        const btnNuevoConcepto = document.getElementById("btnNuevoConcepto");
+        if (btnNuevoConcepto) {
+            btnNuevoConcepto.addEventListener("click", () => {
+                document.getElementById("formConcepto").reset();
+                modalConcepto.show();
+            });
+        }
+
+        // ------------------- BOTÓN GUARDAR NUEVO CONCEPTO -------------------
+        const btnGuardarConcepto = document.getElementById("btnGuardarConcepto");
+        if (btnGuardarConcepto) {
+            btnGuardarConcepto.addEventListener("click", async function() {
+                const codigo = document.getElementById("codigoConcepto").value.trim();
+                const descripcion = document.getElementById("descripcionConcepto").value.trim();
+
+                if (codigo == "" || descripcion == "") {
+                    alert("Complete todos los campos.");
+                    return;
+                }
+
+                const respuesta = await fetch("/api/gastos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        codigo: codigo,
+                        descripcion: descripcion
+                    })
+                });
+
+                const data = await respuesta.json();
+
+                if (data.success) {
+                    actualizarListaConceptos(codigo, descripcion);
+                    document.getElementById("concepto").value = codigo + " - " + descripcion;
+                    modalConcepto.hide();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
 
     });
 
@@ -281,7 +329,7 @@ async function cargarOrdenes() {
     try {
 
         const modo = document.getElementById("filtroModo").value;
-       
+        
 
         let url = "/api/orden_pago";
 
@@ -639,40 +687,43 @@ async function modificarOrden() {
     }
 
 }
+
 // ---------------------- Cerrar el modal y reseterar -------------------------------------------
 const modalOrdenPago =
     document.getElementById("ordenPagoModal");
 
-modalOrdenPago.addEventListener(
-    "hidden.bs.modal",
-    function () {
+if (modalOrdenPago) {
+    modalOrdenPago.addEventListener(
+        "hidden.bs.modal",
+        function () {
 
-        document
-            .getElementById("formOrdenPago")
-            .reset();
+            document
+                .getElementById("formOrdenPago")
+                .reset();
 
-        document
-            .getElementById("idOrden")
-            .value = "";
+            document
+                .getElementById("idOrden")
+                .value = "";
 
-        document
-            .querySelectorAll("#tablaOrdenes tbody tr")
-            .forEach(tr => tr.classList.remove("table-primary"));
+            document
+                .querySelectorAll("#tablaOrdenes tbody tr")
+                .forEach(tr => tr.classList.remove("table-primary"));
 
-        document
-            .getElementById("btnGuardar")
-            .disabled = false;
+            document
+                .getElementById("btnGuardar")
+                .disabled = false;
 
-        document
-            .getElementById("btnModificar")
-            .disabled = true;
+            document
+                .getElementById("btnModificar")
+                .disabled = true;
 
-        document
-            .getElementById("btnImprimir")
-            .disabled = true;
+            document
+                .getElementById("btnImprimir")
+                .disabled = true;
 
-    }
-);
+        }
+    );
+}
 
 //---------------------------- FILTRO PARA ORDENES EMITIDAS ------------------------------------
 function filtrarTablaOrdenes() {
@@ -711,11 +762,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cargarOrdenes();
 
-    document
-        .getElementById("btnModificar")
-        .addEventListener("click", modificarOrden);
-        
+    const btnMod = document.getElementById("btnModificar");
+    if (btnMod) {
+        btnMod.addEventListener("click", modificarOrden);
+    }
 
 });
 
+//------------------------ ACTUALIZAR LISTA DE CONCEPTOS ---------------------------------------------
+function actualizarListaConceptos(codigo,descripcion){
 
+    const lista=document.getElementById("listaConcepto");
+
+    const option=document.createElement("option");
+
+    option.value=codigo+" - "+descripcion;
+
+    lista.appendChild(option);
+
+}
