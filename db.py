@@ -3,17 +3,17 @@ from pymysql.cursors import DictCursor
 
 def get_connection():
     return pymysql.connect(
-    #  port=3306,
-     # host="200.58.106.156",
-      #user="c2710325_killer",
-      #password="SistemaIES6021",
-      #database="c2710325_muni",
+    port=3306,
+    host="200.58.106.156",
+    user="c2710325_killer",
+    password="SistemaIES6021",
+    database="c2710325_muni",
     
-       host="localhost",
-       port=3306,#
-       user="root",
-       password="admin123",
-       database="muni",
+      # host="localhost",
+       #port=3306,#
+       #user="root",
+       #password="admin123",
+       #database="muni",
        
         charset="utf8mb4",
         cursorclass=DictCursor,
