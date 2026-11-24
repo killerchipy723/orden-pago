@@ -1,0 +1,24 @@
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Python y entornos virtuales
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
