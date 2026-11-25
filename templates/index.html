@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/orden_pago.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/recaudaciones.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/caja_chica.css') }}">
 </head>
 <body>
 
@@ -61,7 +62,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#cajaChicaModal">
                         <i class="bi bi-cash-stack"></i>
                         <span>Caja Chica</span>
                     </a>
@@ -148,14 +149,7 @@
                     Administre expedientes, órdenes de pago, recaudaciones, movimientos de caja y legajos de personal desde un entorno centralizado y seguro.
                 </p>
             </div>
-            <div class="welcome-action d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#ordenPagoModal">
-                    <i class="bi bi-plus-circle-fill me-2"></i>Nueva Orden de Pago
-                </button>
-                <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#recaudacionesModal">
-                    <i class="bi bi-cash-coin me-2"></i>Recaudaciones
-                </button>
-            </div>
+            
         </section>
 
         <!-- Quick Access Section Title -->
@@ -192,7 +186,7 @@
             </div>
 
             <div class="col-sm-6 col-xl-3">
-                <div class="dashboard-card card-amber" role="button" tabindex="0">
+                <div class="dashboard-card card-amber" data-bs-toggle="modal" data-bs-target="#cajaChicaModal" role="button" tabindex="0">
                     <div class="card-top">
                         <div class="icon-box">
                             <i class="bi bi-cash-stack"></i>
@@ -225,5 +219,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% include 'modals/orden_pago_modal.html' %}
 {% include 'modals/recaudaciones_modal.html' %}
+{% include 'modals/caja_chica_modal.html' %}
 </body>
 </html>

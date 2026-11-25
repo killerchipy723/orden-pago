@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from routes.orden_pago import orden_pago_bp
 from routes.orden_pago_pdf import orden_pago_bp as orden_pago_pdf_bp
 from routes.recaudaciones import recaudaciones_bp
+from routes.caja_chica import caja_chica_bp
 
 
 app = Flask(__name__)
@@ -13,6 +14,7 @@ app = Flask(__name__)
 app.register_blueprint(orden_pago_bp)
 app.register_blueprint(orden_pago_pdf_bp)
 app.register_blueprint(recaudaciones_bp)
+app.register_blueprint(caja_chica_bp)
 
 app.config["SECRET_KEY"] = "municipalidad-secret-key"
 
@@ -21,7 +23,7 @@ def obtener_datos_base():
     conexion = get_connection()
     fecha_hoy = datetime.now(
         ZoneInfo("America/Argentina/Buenos_Aires")
-    ).strftime("%%Y-%%m-%%d")
+    ).strftime("%Y-%m-%d")
 
     try:
         with conexion.cursor() as cursor:
@@ -33,6 +35,19 @@ def obtener_datos_base():
 
             cursor.execute("SELECT * FROM ordenpago ORDER BY idOrden DESC")
             ordenes = cursor.fetchall()
+            
+            cursor.execute("""
+                SELECT
+                    id_caja,
+                    CAST(fecha AS CHAR) AS fecha,
+                    proveedor,
+                    concepto,
+                    comprobante,
+                    importe
+                FROM caja_chica
+                ORDER BY id_caja DESC
+            """)
+            caja_chica = cursor.fetchall()
 
             cursor.execute("""
                 SELECT
@@ -78,6 +93,7 @@ def obtener_datos_base():
             "recaudaciones": recaudaciones,
             "contribuyentes": contribuyentes,
             "conceptos_ingreso": conceptos_ingreso,
+            "caja_chica": caja_chica,
         }
     finally:
         conexion.close()

@@ -1,0 +1,44 @@
+.caja-modal {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.caja-modal-header {
+    background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+    padding: 16px 24px;
+}
+
+.caja-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.caja-tabla-container {
+    max-height: 290px;
+    overflow-y: auto;
+}
+
+#tablaCajaChica tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+#tablaCajaChica tbody tr.table-active {
+    background-color: #fef3c7 !important;
+}
+
+.caja-total-pill {
+    display: inline-block;
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 13px;
+}

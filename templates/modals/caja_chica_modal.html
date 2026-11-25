@@ -1,0 +1,223 @@
+<!-- MODAL CAJA CHICA -->
+<div class="modal fade" id="cajaChicaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 caja-modal">
+
+            <!-- HEADER -->
+            <div class="modal-header caja-modal-header text-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="caja-header-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Gestión de Caja Chica</h4>
+                        <small class="opacity-75">Registro de gastos menores, comprobantes y control diario</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body bg-light-subtle">
+                <div class="container-fluid px-1">
+
+                    <!-- FORMULARIO -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold text-dark">
+                                <i class="bi bi-pencil-square text-warning me-1"></i>
+                                Movimiento de Caja Chica
+                            </span>
+                            <span id="badgeModoCaja" class="badge bg-warning-subtle text-dark border border-warning">
+                                Nuevo Registro
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <form id="formCajaChica">
+                                <input type="hidden" id="idCaja" name="id_caja">
+
+                                <div class="row g-2">
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold">Fecha</label>
+                                        <input type="date" id="fechaCaja" name="fecha" class="form-control" value="{{ fecha_hoy }}" required>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Proveedor</label>
+                                        <input type="text" id="proveedorCaja" name="proveedor"
+                                               class="form-control text-uppercase"
+                                               oninput="this.value=this.value.toUpperCase()"
+                                               placeholder="Nombre del proveedor..." required>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold">Comprobante N°</label>
+                                        <input type="number" id="comprobanteCaja" name="comprobante"
+                                               class="form-control" min="1" placeholder="Ej: 120" required>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Importe ($)</label>
+                                        <input type="number" step="0.01" min="0.01" id="importeCaja" name="importe"
+                                               class="form-control fw-bold text-end" placeholder="0.00" required>
+                                    </div>
+                                </div>
+
+                                <div class="row g-2 mt-1 align-items-end">
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold">Concepto</label>
+                                        <textarea id="conceptoCaja" name="concepto" rows="2"
+                                                  class="form-control text-uppercase"
+                                                  oninput="this.value=this.value.toUpperCase()"
+                                                  placeholder="Detalle del gasto..." required></textarea>
+                                    </div>
+
+                                    <div class="col-md-4 d-flex justify-content-end gap-1">
+                                        <button type="button" id="btnLimpiarCaja" class="btn btn-outline-secondary" title="Limpiar formulario">
+                                            <i class="bi bi-eraser"></i>
+                                        </button>
+                                        <button type="submit" id="btnGuardarCaja" class="btn btn-warning">
+                                            <i class="bi bi-check-lg me-1"></i>Guardar
+                                        </button>
+                                        <button type="button" id="btnModificarCaja" class="btn btn-primary" disabled>
+                                            <i class="bi bi-pencil-square me-1"></i>Modificar
+                                        </button>
+                                        <button type="button" id="btnEliminarCaja" class="btn btn-danger" disabled title="Eliminar registro">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- TABLA Y TOTALES -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-3">
+                                    <strong class="text-dark">
+                                        <i class="bi bi-list-ul text-warning me-1"></i>
+                                        Movimientos Registrados
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <input type="text" id="buscarCaja" class="form-control form-control-sm"
+                                           placeholder="Buscar proveedor, concepto, comp...">
+                                </div>
+
+                                <div class="col-md-2">
+                                    <input type="date" id="filtroFechaCaja" class="form-control form-control-sm" title="Filtrar por fecha">
+                                </div>
+
+                                <div class="col-md-4 text-md-end d-flex flex-wrap justify-content-md-end gap-2">
+                                    <span class="caja-total-pill">
+                                        Filtrado: <strong id="totalFiltradoCaja">$0.00</strong>
+                                    </span>
+                                    <span class="caja-total-pill">
+                                        Total Gral: <strong id="totalGeneralCaja">$0.00</strong>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="caja-tabla-container">
+                                <table id="tablaCajaChica" class="table table-hover align-middle mb-0">
+                                    <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Fecha</th>
+                                            <th>Proveedor</th>
+                                            <th>Concepto</th>
+                                            <th>Comprobante</th>
+                                            <th class="text-end">Importe</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in caja_chica %}
+                                        <tr data-id="{{ item.id_caja }}"
+                                            data-fecha="{{ item.fecha }}"
+                                            data-proveedor="{{ item.proveedor }}"
+                                            data-concepto="{{ item.concepto }}"
+                                            data-comprobante="{{ item.comprobante }}"
+                                            data-importe="{{ item.importe }}">
+                                            <td>{{ item.id_caja }}</td>
+                                            <td>{{ item.fecha }}</td>
+                                            <td class="fw-medium">{{ item.proveedor }}</td>
+                                            <td>{{ item.concepto }}</td>
+                                            <td><span class="badge bg-secondary-subtle text-dark">#{{ item.comprobante }}</span></td>
+                                            <td class="text-end fw-bold text-dark">${{ "%.2f"|format(item.importe|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CRUCE DIARIO (RECAUDACION vs ORDEN PAGO + CAJA CHICA) -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <strong class="text-dark">
+                                <i class="bi bi-arrow-left-right text-primary me-1"></i>
+                                Planilla Diaria (Ingresos vs Egresos)
+                            </strong>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="date" id="fechaDiariaCaja" class="form-control form-control-sm" value="{{ fecha_hoy }}">
+                                <button type="button" id="btnConsultarDiaria" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-search me-1"></i>Consultar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="small fw-bold text-success mb-1">
+                                        Ingresos (Recaudaciones) — Total: <span id="resumenTotalIngresos">$0.00</span>
+                                    </div>
+                                    <div class="table-responsive" style="max-height: 170px;">
+                                        <table id="tablaDiariaIngresos" class="table table-sm table-bordered mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Recibo</th>
+                                                    <th>Concepto</th>
+                                                    <th class="text-end">Monto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="small fw-bold text-danger mb-1">
+                                        Egresos (Órdenes de Pago + Caja Chica) — Total: <span id="resumenTotalEgresos">$0.00</span>
+                                    </div>
+                                    <div class="table-responsive" style="max-height: 170px;">
+                                        <table id="tablaDiariaEgresos" class="table table-sm table-bordered mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Comprobante</th>
+                                                    <th>Concepto</th>
+                                                    <th class="text-end">Importe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/caja_chica.js') }}"></script>
