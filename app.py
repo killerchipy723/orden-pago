@@ -5,63 +5,98 @@ from zoneinfo import ZoneInfo
 
 from routes.orden_pago import orden_pago_bp
 from routes.orden_pago_pdf import orden_pago_bp as orden_pago_pdf_bp
+from routes.recaudaciones import recaudaciones_bp
 
 
 app = Flask(__name__)
 
 app.register_blueprint(orden_pago_bp)
 app.register_blueprint(orden_pago_pdf_bp)
-
+app.register_blueprint(recaudaciones_bp)
 
 app.config["SECRET_KEY"] = "municipalidad-secret-key"
 
 
-@app.route("/")
-def home():
-
+def obtener_datos_base():
     conexion = get_connection()
     fecha_hoy = datetime.now(
         ZoneInfo("America/Argentina/Buenos_Aires")
-    ).strftime("%Y-%m-%d")
+    ).strftime("%%Y-%%m-%%d")
 
     try:
+        with conexion.cursor() as cursor:
+            cursor.execute("SELECT * FROM gastos")
+            gastos = cursor.fetchall()
 
-        cursor = conexion.cursor()
-        cursor2 = conexion.cursor()
-        cursor3 = conexion.cursor()
-        cursor2.execute("select * from gastos")
-        cursor3.execute("SELECT * FROM plancuenta WHERE estado = 'ACTIVO'")
-        cursor.execute("""
-            SELECT
-                *
-            FROM ordenpago
-            ORDER BY idOrden DESC
-        """)
+            cursor.execute("SELECT * FROM plancuenta WHERE estado = 'ACTIVO'")
+            cuenta = cursor.fetchall()
 
-        ordenes = cursor.fetchall()
-        gastos = cursor2.fetchall()
-        cuenta = cursor3.fetchall()
+            cursor.execute("SELECT * FROM ordenpago ORDER BY idOrden DESC")
+            ordenes = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT
+                    r.idrecaudacion,
+                    DATE_FORMAT(r.fecha, '%Y-%m-%d') AS fecha,
+                    r.nrecibo,
+                    r.idcontribuyente,
+                    CONCAT(c.apellido, ' ', c.nombre) AS contribuyente,
+                    c.dni,
+                    r.idconcepto,
+                    co.detalle AS concepto,
+                    r.monto,
+                    r.modopago
+                FROM recaudacion r
+                JOIN contribuyente c ON r.idcontribuyente = c.idcontribuyente
+                JOIN concepto co ON r.idconcepto = co.idconcepto
+                ORDER BY r.fecha DESC, r.idrecaudacion DESC
+            """)
+            recaudaciones = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT idcontribuyente, CONCAT(apellido, ' ', nombre) AS apenomb, dni
+                FROM contribuyente
+                ORDER BY apellido ASC, nombre ASC
+            """)
+            contribuyentes = cursor.fetchall()
+
+            cursor.execute("SELECT idconcepto, detalle FROM concepto ORDER BY detalle ASC")
+            conceptos_ingreso = cursor.fetchall()
 
         cuenta_default = ""
-       
-
         for c in cuenta:
-            if c["idorden"] == 2:
-                cuenta_default = c["cuenta"]
+            if c.get("idorden") == 2:
+                cuenta_default = c.get("cuenta", "")
                 break
 
-        return render_template(
-            "index.html",
-            ordenes=ordenes,gastos=gastos,fecha_hoy=fecha_hoy,cuenta=cuenta,cuenta_default=cuenta_default
-        )
-
+        return {
+            "ordenes": ordenes,
+            "gastos": gastos,
+            "fecha_hoy": fecha_hoy,
+            "cuenta": cuenta,
+            "cuenta_default": cuenta_default,
+            "recaudaciones": recaudaciones,
+            "contribuyentes": contribuyentes,
+            "conceptos_ingreso": conceptos_ingreso,
+        }
     finally:
-        cursor.close()
         conexion.close()
+
+
+@app.route("/")
+def home():
+    datos = obtener_datos_base()
+    return render_template("index.html", **datos)
+
+
+@app.route("/recaudaciones")
+def vista_recaudaciones():
+    datos = obtener_datos_base()
+    return render_template("recaudaciones.html", **datos)
+
 
 @app.route("/test-db")
 def test_db():
-
     try:
         conn = get_connection()
 
@@ -81,6 +116,7 @@ def test_db():
             "estado": "error",
             "mensaje": str(e)
         }, 500
+
 
 print(app.url_map)
 if __name__ == "__main__":

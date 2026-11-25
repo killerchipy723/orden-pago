@@ -1,0 +1,44 @@
+.rec-modal {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.rec-modal-header {
+    background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+    padding: 16px 24px;
+}
+
+.rec-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.rec-tabla-container {
+    max-height: 310px;
+    overflow-y: auto;
+}
+
+#tablaRecaudaciones tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+#tablaRecaudaciones tbody tr.table-active {
+    background-color: #d1fae5 !important;
+}
+
+.rec-total-pill {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 13px;
+}

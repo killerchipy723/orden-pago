@@ -17,6 +17,7 @@
     <!-- Estilos propios -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/orden_pago.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/recaudaciones.css') }}">
 </head>
 <body>
 
@@ -38,7 +39,7 @@
             <div class="menu-label">Principal</div>
             <ul class="menu">
                 <li>
-                    <a href="#" class="active">
+                    <a href="{{ url_for('home') }}" class="active">
                         <i class="bi bi-grid-1x2-fill"></i>
                         <span>Panel Principal</span>
                     </a>
@@ -51,6 +52,12 @@
                     <a href="#" data-bs-toggle="modal" data-bs-target="#ordenPagoModal">
                         <i class="bi bi-receipt-cutoff"></i>
                         <span>Orden de Pago</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#recaudacionesModal">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Recaudaciones</span>
                     </a>
                 </li>
                 <li>
@@ -138,12 +145,15 @@
                 </span>
                 <h2>Bienvenido al Sistema de Gestión</h2>
                 <p>
-                    Administre expedientes, órdenes de pago, movimientos de caja y legajos de personal desde un entorno centralizado y seguro.
+                    Administre expedientes, órdenes de pago, recaudaciones, movimientos de caja y legajos de personal desde un entorno centralizado y seguro.
                 </p>
             </div>
-            <div class="welcome-action">
+            <div class="welcome-action d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#ordenPagoModal">
                     <i class="bi bi-plus-circle-fill me-2"></i>Nueva Orden de Pago
+                </button>
+                <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#recaudacionesModal">
+                    <i class="bi bi-cash-coin me-2"></i>Recaudaciones
                 </button>
             </div>
         </section>
@@ -169,7 +179,20 @@
             </div>
 
             <div class="col-sm-6 col-xl-3">
-                <div class="dashboard-card card-emerald" role="button" tabindex="0">
+                <div class="dashboard-card card-emerald" data-bs-toggle="modal" data-bs-target="#recaudacionesModal" role="button" tabindex="0">
+                    <div class="card-top">
+                        <div class="icon-box">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <span class="card-arrow"><i class="bi bi-arrow-up-right"></i></span>
+                    </div>
+                    <h5>Recaudaciones</h5>
+                    <p>Registro, consulta y control de ingresos y recibos.</p>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="dashboard-card card-amber" role="button" tabindex="0">
                     <div class="card-top">
                         <div class="icon-box">
                             <i class="bi bi-cash-stack"></i>
@@ -178,19 +201,6 @@
                     </div>
                     <h5>Caja Chica</h5>
                     <p>Rendiciones, arqueos y administración de fondos fijos.</p>
-                </div>
-            </div>
-
-            <div class="col-sm-6 col-xl-3">
-                <div class="dashboard-card card-amber" role="button" tabindex="0">
-                    <div class="card-top">
-                        <div class="icon-box">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <span class="card-arrow"><i class="bi bi-arrow-up-right"></i></span>
-                    </div>
-                    <h5>Recursos Humanos</h5>
-                    <p>Gestión de agentes, asistencias y legajos municipales.</p>
                 </div>
             </div>
 
@@ -214,5 +224,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% include 'modals/orden_pago_modal.html' %}
+{% include 'modals/recaudaciones_modal.html' %}
 </body>
 </html>

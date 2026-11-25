@@ -1,0 +1,276 @@
+<!-- MODAL RECAUDACIONES -->
+<div class="modal fade" id="recaudacionesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rec-modal">
+
+            <!-- HEADER -->
+            <div class="modal-header rec-modal-header text-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rec-header-icon">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Gestión de Recaudaciones</h4>
+                        <small class="opacity-75">Registro de ingresos, recibos y contribuyentes</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body bg-light-subtle">
+                <div class="container-fluid px-1">
+
+                    <!-- FORMULARIO -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold text-dark">
+                                <i class="bi bi-pencil-square text-success me-1"></i>
+                                Datos de la Recaudación
+                            </span>
+                            <span id="badgeModoRecaudacion" class="badge bg-success-subtle text-success border border-success-subtle">
+                                Nuevo Registro
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <form id="formRecaudacion">
+                                <input type="hidden" id="idRecaudacion" name="idrecaudacion">
+                                <input type="hidden" id="idContribuyenteRec" name="idcontribuyente" required>
+
+                                <!-- FILA 1 -->
+                                <div class="row g-2">
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold">Fecha</label>
+                                        <input type="date" id="fechaRec" name="fecha" class="form-control" value="{{ fecha_hoy }}" required>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold">N° Recibo</label>
+                                        <input type="number" id="nRecibo" name="nrecibo" class="form-control" min="1" placeholder="Ej: 1045" required>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <label class="form-label fw-semibold">Contribuyente</label>
+                                        <div class="input-group">
+                                            <input type="text" id="buscarContribuyenteInput" class="form-control text-uppercase"
+                                                   list="listaContribuyentes" autocomplete="off"
+                                                   placeholder="Escriba apellido, nombre o DNI..." required>
+                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#modalNuevoContribuyente" title="Nuevo contribuyente">
+                                                <i class="bi bi-person-plus-fill"></i>
+                                            </button>
+                                        </div>
+                                        <datalist id="listaContribuyentes">
+                                            {% for c in contribuyentes %}
+                                            <option data-id="{{ c.idcontribuyente }}" value="{{ c.apenomb }} - DNI {{ c.dni }}"></option>
+                                            {% endfor %}
+                                        </datalist>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold">Modo de Pago</label>
+                                        <select id="modoPagoRec" name="modopago" class="form-select" required>
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia</option>
+                                            <option value="Cheque">Cheque</option>
+                                            <option value="QR">QR</option>
+                                            <option value="Tarjeta">Tarjeta</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- FILA 2 -->
+                                <div class="row g-2 mt-1 align-items-end">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Concepto de Ingreso</label>
+                                        <div class="input-group">
+                                            <select id="idConceptoRec" name="idconcepto" class="form-select" required>
+                                                <option value="">Seleccione un concepto...</option>
+                                                {% for co in conceptos_ingreso %}
+                                                <option value="{{ co.idconcepto }}">{{ co.detalle }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                                    data-bs-target="#modalConceptoIngreso" title="Nuevo concepto">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold">Monto ($)</label>
+                                        <input type="number" step="0.01" min="0.01" id="montoRec" name="monto"
+                                               class="form-control fw-bold text-end" placeholder="0.00" required>
+                                    </div>
+
+                                    <div class="col-md-3 d-flex justify-content-end gap-1">
+                                        <button type="button" id="btnLimpiarRec" class="btn btn-outline-secondary" title="Limpiar formulario">
+                                            <i class="bi bi-eraser"></i>
+                                        </button>
+                                        <button type="submit" id="btnGuardarRec" class="btn btn-success">
+                                            <i class="bi bi-check-lg me-1"></i>Guardar
+                                        </button>
+                                        <button type="button" id="btnModificarRec" class="btn btn-warning" disabled>
+                                            <i class="bi bi-pencil-square me-1"></i>Modificar
+                                        </button>
+                                        <button type="button" id="btnEliminarRec" class="btn btn-danger" disabled title="Eliminar registro">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- TABLA Y FILTROS -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-3">
+                                    <strong class="text-dark">
+                                        <i class="bi bi-list-ul text-success me-1"></i>
+                                        Recaudaciones Registradas
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <input type="text" id="buscarRecaudacion" class="form-control form-control-sm"
+                                           placeholder="Buscar por recibo, contribuyente, concepto...">
+                                </div>
+
+                                <div class="col-md-2">
+                                    <select id="filtroModoRec" class="form-select form-select-sm">
+                                        <option value="">Todos los medios</option>
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Transferencia">Transferencia</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="QR">QR</option>
+                                        <option value="Tarjeta">Tarjeta</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 text-md-end">
+                                    <span class="rec-total-pill">
+                                        Total: <strong id="totalRecaudadoTexto">$0.00</strong>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="rec-tabla-container">
+                                <table id="tablaRecaudaciones" class="table table-hover align-middle mb-0">
+                                    <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Fecha</th>
+                                            <th>Recibo N°</th>
+                                            <th>Contribuyente</th>
+                                            <th>Concepto</th>
+                                            <th>Modo Pago</th>
+                                            <th class="text-end">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for r in recaudaciones %}
+                                        <tr data-id="{{ r.idrecaudacion }}"
+                                            data-fecha="{{ r.fecha }}"
+                                            data-nrecibo="{{ r.nrecibo }}"
+                                            data-idcontribuyente="{{ r.idcontribuyente }}"
+                                            data-contribuyente="{{ r.contribuyente }} - DNI {{ r.dni }}"
+                                            data-idconcepto="{{ r.idconcepto }}"
+                                            data-modopago="{{ r.modopago }}"
+                                            data-monto="{{ r.monto }}">
+                                            <td>{{ r.idrecaudacion }}</td>
+                                            <td>{{ r.fecha }}</td>
+                                            <td><span class="badge bg-secondary-subtle text-dark">#{{ r.nrecibo }}</span></td>
+                                            <td class="fw-medium">{{ r.contribuyente }}</td>
+                                            <td>{{ r.concepto }}</td>
+                                            <td>{{ r.modopago }}</td>
+                                            <td class="text-end fw-bold text-success">${{ "%.2f"|format(r.monto|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- SUB-MODAL: NUEVO CONTRIBUYENTE -->
+<div class="modal fade" id="modalNuevoContribuyente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-primary text-white">
+                <div>
+                    <h5 class="mb-0"><i class="bi bi-person-plus-fill me-1"></i>Nuevo Contribuyente</h5>
+                    <small>Alta rápida en padrón municipal</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoContribuyente">
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Apellido</label>
+                        <input type="text" id="apellidoContrib" class="form-control text-uppercase"
+                               oninput="this.value=this.value.toUpperCase()" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <input type="text" id="nombreContrib" class="form-control text-uppercase"
+                               oninput="this.value=this.value.toUpperCase()" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">DNI / CUIT</label>
+                        <input type="text" id="dniContrib" class="form-control" maxlength="15" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarContribuyente">
+                    <i class="bi bi-check-circle me-1"></i>Guardar Contribuyente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SUB-MODAL: NUEVO CONCEPTO DE INGRESO -->
+<div class="modal fade" id="modalConceptoIngreso" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-success text-white">
+                <div>
+                    <h5 class="mb-0"><i class="bi bi-journal-plus me-1"></i>Nuevo Concepto de Ingreso</h5>
+                    <small>Registrar rubro de recaudación</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formConceptoIngreso">
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Detalle del Concepto</label>
+                        <input type="text" id="detalleConceptoIngreso" class="form-control text-uppercase"
+                               oninput="this.value=this.value.toUpperCase()" maxlength="120" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarConceptoIngreso">
+                    <i class="bi bi-check-circle me-1"></i>Guardar Concepto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/recaudaciones.js') }}"></script>
